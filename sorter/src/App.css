@@ -26,3 +26,26 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+
+.body {
+  display: table;
+  background-color: green;
+}
+
+.full-height {
+  float: none;
+  display: table-cell;
+
+  /*background-color: blue;*/
+  /*float: none;*/
+  /*display: table-cell;*/
+  /*border: 1px solid;*/
+}
+
+.right-side {
+  /*background-color: red;*/
+  /*float: none;*/
+  /*display: table-cell;*/
+  /*border: 1px solid;*/
+}

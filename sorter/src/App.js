@@ -15,11 +15,26 @@ const SORT_COMPLETED = 'sort_completed';
 // const SORT_PROCESSING = 'sort_processing';
 
 
+function makePostRequest(type, data_array) {
+    return fetch('http://localhost:8080/', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            type,
+            data_array,
+        })
+    })
+
+}
 class ArrayInputControl extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: '[100, 90, 10, 5, 20, 1, 3, 4, 2, 6, 7, 9, 8]'
+            value: '["100", "90", "10", "5", "20", "1", "3", "4", "2", "6", "7", "9", "8", "Z", "a", "b"]'
+            // value: '[100, 90, 10, 5, 20, 1, 3, 4, 2, 6, 7, 9, 8]'
         };
 
         this.handleChange = this.handleChange.bind(this);
@@ -121,8 +136,8 @@ class AppView extends Component {
                                 </ButtonGroup>
                             </Col>
                         </Row>
-                        <Row>
-                            <Col xs={4}>
+                        <Row className="body">
+                            <Col xs={4} className="full-height">
                                 <Panel>
                                     <Panel.Heading>
                                         Raw Data
@@ -135,7 +150,7 @@ class AppView extends Component {
                                 </Panel>
 
                             </Col>
-                            <Col xs={4}>
+                            <Col xs={4} className="full-height">
                                 <Panel>
                                     <Panel.Heading>
                                         Unsorted Array
@@ -145,7 +160,7 @@ class AppView extends Component {
                                     </Panel.Body>
                                 </Panel>
                             </Col>
-                            <Col xs={4}>
+                            <Col xs={4} className="full-height">
                                 <Panel>
                                     <Panel.Heading>
                                         Sorted Array
@@ -201,6 +216,7 @@ function comparatorObject(a, b) {
     }
 }
 
+
 class App extends Component {
     constructor(props) {
         super(props);
@@ -230,11 +246,24 @@ class App extends Component {
     }
 
     sortAction () {
-        this.setState(
-            {
-                sorted: [...this.state.unsorted].sort(getCompatorFunction(this.state.type))
-            }
-        )
+
+        if (this.state.type === TYPE_INTEGER) {
+            this.setState(
+                {
+                    sorted: [...this.state.unsorted].sort(getCompatorFunction(this.state.type))
+                }
+            );
+
+        } else {
+            makePostRequest(this.state.type, this.state.unsorted).then(
+                (response) => {
+                    console.log("(response) => { response === ", response);
+                    let responseJson = response.json();
+                    console.log("let responseJson = response.json(); responseJson  === ", responseJson);
+                    responseJson.then(sorted => this.setState({sorted}));
+                }
+            );
+        }
     }
 
     render () {
