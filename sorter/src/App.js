@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Grid, Row, Col, Navbar, Jumbotron, Button, ButtonGroup, Label, Panel } from 'react-bootstrap';
 
-// import logo from './logo.svg';
 import './App.css';
 
 const TYPE_INTEGER = 'integer';
@@ -12,10 +11,8 @@ const SORT_DATA_NOT_READY = 'sort_ready';
 const SORT_READY = 'sort_ready';
 const SORT_STARTED = 'sort_started';
 const SORT_COMPLETED = 'sort_completed';
-// const SORT_PROCESSING = 'sort_processing';
 
-
-function makePostRequest(type, data_array) {
+function makePostRequest (type, data_array) {
     return fetch('http://localhost:8080/', {
         method: 'POST',
         headers: {
@@ -26,54 +23,66 @@ function makePostRequest(type, data_array) {
             type,
             data_array,
         })
-    })
+    });
 
 }
+
 class ArrayInputControl extends React.Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
-            value: '["100", "90", "10", "5", "20", "1", "3", "4", "2", "6", "7", "9", "8", "Z", "a", "b"]'
-            // value: '[100, 90, 10, 5, 20, 1, 3, 4, 2, 6, 7, 9, 8]'
+            // value: '["100", "90", "0", "0100", "0200", "10", "5", "20", "1", "3", "4", "2", "6", "7", "9", "8", "Z", "a", "b"]',
+            value: JSON.stringify([
+                {asdf: 'asdf', aa: '111'},
+                {adfasdf: 'asdf', aa: '111'},
+                {zzzbsa4sdf: 'asdf', aa: 'xx111'},
+                {},
+                {casdf: 'asdf', aa: '11v1'},
+                {asdf: 'asdf', aa: '111'},
+                {asdf: 'asdf', aa: '111'}
+            ]),
         };
 
         this.handleChange = this.handleChange.bind(this);
     }
 
-    handleChange(event) {
-        this.setState({value: event.target.value});
-        try {
-            let arrayString = this.state.value;
-            let parsedData = JSON.parse(arrayString);
-            if (Array.isArray(parsedData)) {
-                this.props.consumeArray(parsedData)
+    handleChange (event) {
+        this.setState({value: event.target.value}, () => {
+            try {
+                let arrayString = this.state.value;
+                let parsedData = JSON.parse(arrayString);
+                if (Array.isArray(parsedData)) {
+                    this.props.consumeArray(parsedData);
+                }
+            } catch (e) {
+                this.props.consumeArray([]);
             }
-        } catch (e) {
-            this.props.consumeArray([])
-            // skip
-        }
+
+        });
     }
 
-    componentDidMount() {
+    componentDidMount () {
         this.handleChange({
-            target:{
-                value:this.state.value
+            target: {
+                value: this.state.value
             }
         });
     }
-    render() {
+
+    render () {
         return (
-                <Label htmlFor="inputArray">
-                    Array to Sort:
-                    <textarea className="form-control"
-                              rows="20"
-                              id="inputArray"
-                              value={this.state.value}
-                              onChange={this.handleChange} />
-                </Label>
+            <Label htmlFor="inputArray">
+                Array to Sort:
+                <textarea className="form-control"
+                          rows="20"
+                          id="inputArray"
+                          value={this.state.value}
+                          onChange={this.handleChange}/>
+            </Label>
         );
     }
 }
+
 function ArrayView (props) {
     return (
         <ul>
@@ -81,11 +90,14 @@ function ArrayView (props) {
         </ul>
     );
 }
+
 class AppView extends Component {
 
     render () {
-        let {type, selectType, sorted, unsorted,
-            sortAction, sortDataStatus, consumeArray} = this.props;
+        let {
+            type, selectType, sorted, unsorted,
+            sortAction, sortDataStatus, consumeArray
+        } = this.props;
         return (
             <div>
                 <Navbar inverse fixedTop>
@@ -104,19 +116,19 @@ class AppView extends Component {
                             <Col xs={6}>
                                 <ButtonGroup>
                                     <Button
-                                        bsStyle={type === TYPE_INTEGER ? "primary" : "info"}
+                                        bsStyle={type === TYPE_INTEGER ? 'primary' : 'info'}
                                         bsSize="large"
                                         onClick={() => selectType(TYPE_INTEGER)}>
                                         Integer
                                     </Button>
                                     <Button
-                                        bsStyle={type === TYPE_STRING ? "primary" : "info"}
+                                        bsStyle={type === TYPE_STRING ? 'primary' : 'info'}
                                         bsSize="large"
                                         onClick={() => selectType(TYPE_STRING)}>
                                         String
                                     </Button>
                                     <Button
-                                        bsStyle={type === TYPE_OBJECT ? "primary" : "info"}
+                                        bsStyle={type === TYPE_OBJECT ? 'primary' : 'info'}
                                         bsSize="large"
                                         onClick={() => selectType(TYPE_OBJECT)}>
                                         Object
@@ -165,7 +177,14 @@ class AppView extends Component {
                                     <Panel.Heading>
                                         Sorted Array
                                     </Panel.Heading>
-                                    <Panel.Body>                                                            <ArrayView data={sorted}/>
+                                    <Panel.Body>
+                                        {
+                                            (sortDataStatus === SORT_STARTED)
+                                                ?
+                                                <p>Sorting...</p>
+                                                :
+                                                <ArrayView data={sorted}/>
+                                        }
                                     </Panel.Body>
                                 </Panel>
 
@@ -178,7 +197,7 @@ class AppView extends Component {
     }
 }
 
-function getCompatorFunction(type) {
+function getComparatorFunction (type) {
     if (type === TYPE_INTEGER) {
         return comparatorInteger;
     } else if (type === TYPE_STRING) {
@@ -188,27 +207,10 @@ function getCompatorFunction(type) {
     }
 
 }
-function comparatorInteger(a, b) {
+
+function comparatorInteger (a, b) {
     if (a === b) {
-        return 0
-    } else if (a < b) {
-        return -1;
-    } else if (a > b) {
-        return 1;
-    }
-}
-function comparatorString(a, b) {
-    if (a === b) {
-        return 0
-    } else if (a < b) {
-        return -1;
-    } else if (a > b) {
-        return 1;
-    }
-}
-function comparatorObject(a, b) {
-    if (a === b) {
-        return 0
+        return 0;
     } else if (a < b) {
         return -1;
     } else if (a > b) {
@@ -216,9 +218,28 @@ function comparatorObject(a, b) {
     }
 }
 
+function comparatorString (a, b) {
+    if (a === b) {
+        return 0;
+    } else if (a < b) {
+        return -1;
+    } else if (a > b) {
+        return 1;
+    }
+}
+
+function comparatorObject (a, b) {
+    if (a === b) {
+        return 0;
+    } else if (a < b) {
+        return -1;
+    } else if (a > b) {
+        return 1;
+    }
+}
 
 class App extends Component {
-    constructor(props) {
+    constructor (props) {
         super(props);
         this.state = {
             type: TYPE_INTEGER,
@@ -228,7 +249,6 @@ class App extends Component {
             comparatorFn: comparatorInteger,
         };
 
-        // this.handleChange = this.handleChange.bind(this);
         this.selectType = this.selectType.bind(this);
         this.consumeArray = this.consumeArray.bind(this);
         this.sortAction = this.sortAction.bind(this);
@@ -247,23 +267,31 @@ class App extends Component {
 
     sortAction () {
 
-        if (this.state.type === TYPE_INTEGER) {
-            this.setState(
-                {
-                    sorted: [...this.state.unsorted].sort(getCompatorFunction(this.state.type))
-                }
-            );
-
-        } else {
-            makePostRequest(this.state.type, this.state.unsorted).then(
-                (response) => {
-                    console.log("(response) => { response === ", response);
-                    let responseJson = response.json();
-                    console.log("let responseJson = response.json(); responseJson  === ", responseJson);
-                    responseJson.then(sorted => this.setState({sorted}));
-                }
-            );
-        }
+        this.setState({
+            sortDataStatus: SORT_STARTED
+        }, () => {
+            if (this.state.type === TYPE_INTEGER) {
+                let integerArray = this.state.unsorted.map(Number.parseInt).filter(item => !isNaN(item));
+                this.setState(
+                    {
+                        sortDataStatus: SORT_COMPLETED,
+                        sorted: integerArray.sort(getComparatorFunction(this.state.type))
+                    }
+                );
+            } else {
+                makePostRequest(this.state.type, this.state.unsorted).then(
+                    (response) => {
+                        let responseJson = response.json();
+                        responseJson.then(sorted => this.setState(
+                            {
+                                sortDataStatus: SORT_COMPLETED,
+                                sorted
+                            }
+                        ));
+                    }
+                );
+            }
+        });
     }
 
     render () {

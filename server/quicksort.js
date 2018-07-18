@@ -130,6 +130,21 @@ function compareString (stringA = '', string_B = '') {
      */
 }
 
+/**
+ * Compare Object
+ *
+ * @param objectA
+ * @param objectB
+ */
+//@NOTE: NEVER USE IN PRODUCTION !!!
+// FOR DOCUMENTATION PURPOSES ONLY
+function compareObject (objectA = {}, objectB = {}) {
+    throw "Do not use this method inside sort function!";
+    let strA = JSON.stringify(objectA);
+    let strB = JSON.stringify(objectB);
+    return compareString(strA, strB);
+}
+
 const sortFunction = singleQuickSort(hoarePartion);
 
 
@@ -137,4 +152,5 @@ module.exports = {
     sortFunction,
     compareNumber,
     compareString,
+    compareObject,
 };
